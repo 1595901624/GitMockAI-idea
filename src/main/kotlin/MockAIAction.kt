@@ -97,31 +97,34 @@ class MockAIAction : DumbAwareAction() {
     }
 
     private fun selectedFilePaths(event: AnActionEvent): List<String> {
-        val pathsByNormalizedPath = linkedMapOf<String, String>()
-        fun addPath(path: String) {
-            val normalizedPath = path.replace('\\', '/')
-            val key = if (SystemInfo.isWindows) normalizedPath.lowercase() else normalizedPath
-            pathsByNormalizedPath.putIfAbsent(key, path)
-        }
+        // These keys overlap, and some IDE versions expose all changes through fallback keys.
+        // Use the first non-empty source so only the explicit tree selection is executed.
+        val candidates = listOf(
+            event.getData(VcsDataKeys.CHANGE_LEAD_SELECTION)
+                ?.map { ChangesUtil.getFilePath(it).path }
+                .orEmpty(),
+            event.getData(VcsDataKeys.SELECTED_CHANGES)
+                ?.map { ChangesUtil.getFilePath(it).path }
+                .orEmpty(),
+            event.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY)
+                ?.map { it.path }
+                .orEmpty(),
+            event.getData(VcsDataKeys.FILE_PATHS)
+                ?.map { it.path }
+                .orEmpty(),
+            event.getData(VcsDataKeys.VIRTUAL_FILES)
+                ?.map { it.path }
+                .orEmpty(),
+            listOfNotNull(event.getData(CommonDataKeys.VIRTUAL_FILE)?.path),
+            listOfNotNull(event.getData(VcsDataKeys.FILE_PATH)?.path),
+        )
 
-        event.getData(VcsDataKeys.SELECTED_CHANGES)
-            ?.forEach { addPath(ChangesUtil.getFilePath(it).path) }
-        event.getData(VcsDataKeys.CHANGE_LEAD_SELECTION)
-            ?.forEach { addPath(ChangesUtil.getFilePath(it).path) }
-        event.getData(VcsDataKeys.FILE_PATHS)
-            ?.forEach { addPath(it.path) }
-        event.getData(VcsDataKeys.FILE_PATH)
-            ?.path
-            ?.let(::addPath)
-        event.getData(VcsDataKeys.VIRTUAL_FILES)
-            ?.forEach { addPath(it.path) }
-        event.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY)
-            ?.forEach { addPath(it.path) }
-        event.getData(CommonDataKeys.VIRTUAL_FILE)
-            ?.path
-            ?.let(::addPath)
-
-        return pathsByNormalizedPath.values.toList()
+        return candidates.firstOrNull { it.isNotEmpty() }
+            ?.distinctBy { path ->
+                val normalizedPath = path.replace('\\', '/')
+                if (SystemInfo.isWindows) normalizedPath.lowercase() else normalizedPath
+            }
+            .orEmpty()
     }
 
     private fun notify(project: Project, title: String, content: String, type: NotificationType) {
