@@ -1,0 +1,40 @@
+src/main/resources/META-INF/plugin.xml
+  45b4a8cfc05707f3 32-35,42
+src/main/kotlin/MockAISettings.kt
+  45b4a8cfc05707f3 1-86
+src/main/kotlin/MockAIConfigurable.kt
+  45b4a8cfc05707f3 1-194
+src/main/kotlin/MockAIAction.kt
+  45b4a8cfc05707f3 5,9-11,14-18,22-24,29-33,35-127,130,134-161,163-195,198-203,206-213
+gradle.properties
+  s_45b4a8cfc05707::t_2bf2cb3178fc33 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.11",
+  "base_commit_sha": "fc89f75f52fac938a5ea186343409c933540e550",
+  "prompts": {
+    "45b4a8cfc05707f3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f3656-b952-76a0-8066-0b5919a75ecf",
+        "model": "gpt-5.5"
+      },
+      "human_author": "luhaoyu <haoyu3@163.com>",
+      "total_additions": 496,
+      "total_deletions": 36,
+      "accepted_lines": 471,
+      "overriden_lines": 0
+    }
+  },
+  "sessions": {
+    "s_45b4a8cfc05707": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f3656-b952-76a0-8066-0b5919a75ecf",
+        "model": "unknown"
+      },
+      "human_author": "luhaoyu <haoyu3@163.com>"
+    }
+  }
+}
