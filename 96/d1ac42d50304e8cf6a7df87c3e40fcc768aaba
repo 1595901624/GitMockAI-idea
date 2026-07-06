@@ -1,0 +1,25 @@
+src/main/kotlin/MockAIAction.kt
+  45b4a8cfc05707f3 1-39
+src/main/resources/META-INF/plugin.xml
+  45b4a8cfc05707f3 23,28-31,34-41
+  45b4a8cfc05707f3 42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "development:1.6.11",
+  "base_commit_sha": "96d1ac42d50304e8cf6a7df87c3e40fcc768aaba",
+  "prompts": {
+    "45b4a8cfc05707f3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f3656-b952-76a0-8066-0b5919a75ecf",
+        "model": "gpt-5.5"
+      },
+      "human_author": "luhaoyu <haoyu3@163.com>",
+      "total_additions": 54,
+      "total_deletions": 5,
+      "accepted_lines": 53,
+      "overriden_lines": 0
+    }
+  }
+}
