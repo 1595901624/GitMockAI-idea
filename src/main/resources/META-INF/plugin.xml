@@ -29,13 +29,17 @@
                            displayName="GitMockAI"
                            displayType="BALLOON"
                            isLogByDefault="true"/>
+        <applicationConfigurable id="com.hy.ide.cmcc.GitMockAI.Settings"
+                                 parentId="tools"
+                                 displayName="Mock AI"
+                                 instance="com.hy.ide.cmcc.MockAIConfigurable"/>
     </extensions>
 
     <actions>
         <action id="com.hy.ide.cmcc.GitMockAI.MockAI"
                 class="com.hy.ide.cmcc.MockAIAction"
                 text="Mock AI"
-                description="Show the selected file path">
+                description="Create a Mock AI checkpoint for the selected files">
             <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
         </action>
     </actions>
