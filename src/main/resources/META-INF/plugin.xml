@@ -20,14 +20,24 @@
     <!-- Product and plugin compatibility requirements.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
-
-    <resource-bundle>messages.MyMessageBundle</resource-bundle>
+    <depends>com.intellij.modules.vcs</depends>
 
     <!-- Extensions defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="MyToolWindow" factoryClass="com.hy.ide.cmcc.MyToolWindowFactory"
-                    icon="AllIcons.Toolwindows.ToolWindowPalette"/>
+        <notificationGroup id="GitMockAI Notifications"
+                           displayName="GitMockAI"
+                           displayType="BALLOON"
+                           isLogByDefault="true"/>
     </extensions>
+
+    <actions>
+        <action id="com.hy.ide.cmcc.GitMockAI.MockAI"
+                class="com.hy.ide.cmcc.MockAIAction"
+                text="Mock AI"
+                description="Show the selected file path">
+            <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
+        </action>
+    </actions>
 
 </idea-plugin>
