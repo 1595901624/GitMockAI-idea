@@ -1,0 +1,55 @@
+src/main/kotlin/ResetCommitAttributionAction.kt
+  s_904875177a061b::t_c6758c34b5b1a9 1-70
+src/main/resources/META-INF/plugin.xml
+  s_904875177a061b::t_c6758c34b5b1a9 40-41
+  s_904875177a061b::t_a46fe97bb48106 39,42-53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.2",
+  "base_commit_sha": "b7be2c5b965773ab5cdb5f3c95839521eed77afd",
+  "prompts": {
+    "904875177a061b7f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f503e-e901-7fa3-84a5-af26f1955732",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "luhaoyu <haoyu3@163.com>",
+      "messages": [],
+      "total_additions": 91,
+      "total_deletions": 12,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    }
+  },
+  "commit_stats": {
+    "git_diff_added_lines": 85,
+    "git_diff_deleted_lines": 6,
+    "ai_additions": 85,
+    "ai_accepted": 85,
+    "BYMC": 0,
+    "mixed_additions": 0,
+    "BYAC": 85,
+    "BYRC": 0,
+    "per_file": {
+      "src/main/kotlin/ResetCommitAttributionAction.kt": {
+        "BYMC": [],
+        "BYAC": [
+          "1-70"
+        ],
+        "BYRC": []
+      },
+      "src/main/resources/META-INF/plugin.xml": {
+        "BYMC": [],
+        "BYAC": [
+          "39-53"
+        ],
+        "BYRC": []
+      }
+    }
+  },
+  "ipa_account": "luhaoyu",
+  "commit_timestamp": 1783761221,
+  "requirement_id": ""
+}
