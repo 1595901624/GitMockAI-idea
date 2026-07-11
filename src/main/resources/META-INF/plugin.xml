@@ -5,7 +5,7 @@
 
     <!-- Public plugin name should be written in Title Case.
      Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
-    <name>GitMockAI</name>
+    <name>GitAI助手</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
     <vendor url="https://www.yourcompany.com">YourCompany</vendor>
@@ -13,8 +13,7 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
-        Enter short description for your plugin here.<br>
-        <em>most HTML tags may be used</em>
+        为 Git 提交创建 Mock AI 检查点，并管理提交中的 AI 归因信息。
         ]]></description>
 
     <!-- Product and plugin compatibility requirements.
@@ -26,12 +25,12 @@
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup id="GitMockAI Notifications"
-                           displayName="GitMockAI"
+                           displayName="GitAI助手"
                            displayType="BALLOON"
                            isLogByDefault="true"/>
         <applicationConfigurable id="com.hy.ide.cmcc.GitMockAI.Settings"
                                  parentId="tools"
-                                 displayName="Mock AI"
+                                 displayName="Mark AI"
                                  instance="com.hy.ide.cmcc.MockAIConfigurable"/>
     </extensions>
 
@@ -47,8 +46,8 @@
                     description="Create a Mock AI checkpoint for the selected files"/>
             <action id="com.hy.ide.cmcc.GitMockAI.ResetCommitAttribution"
                     class="com.hy.ide.cmcc.ResetCommitAttributionAction"
-                    text="重置提交归因(当前窗口所有)"
-                    description="重置提交窗口中的所有 AI 归因"/>
+                    text="取消当前窗口所有文件的标记"
+                    description="取消当前窗口所有文件的标记"/>
             <separator/>
         </group>
     </actions>
