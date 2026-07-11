@@ -1,0 +1,92 @@
+src/main/resources/META-INF/plugin.xml
+  s_42c6cca66d5303::t_1b922daa52435f 16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.2",
+  "base_commit_sha": "a3315adcc88f41cd9a8d5e1218978549782f71e4",
+  "prompts": {
+    "42c6cca66d53031d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f5074-53ff-7963-9aec-a7215f281aaf",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "luhaoyu <haoyu3@163.com>",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 14,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    }
+  },
+  "commit_stats": {
+    "git_diff_added_lines": 685,
+    "git_diff_deleted_lines": 698,
+    "ai_additions": 1,
+    "ai_accepted": 1,
+    "BYMC": 684,
+    "mixed_additions": 0,
+    "BYAC": 1,
+    "BYRC": 0,
+    "per_file": {
+      "src/main/kotlin/com/hy/ide/cmcc/MockAIAction.kt": {
+        "BYMC": [
+          "1-270"
+        ],
+        "BYAC": [],
+        "BYRC": []
+      },
+      "src/main/kotlin/com/hy/ide/cmcc/MockAIConfigurable.kt": {
+        "BYMC": [
+          "1-194"
+        ],
+        "BYAC": [],
+        "BYRC": []
+      },
+      "src/main/kotlin/com/hy/ide/cmcc/MockAISettings.kt": {
+        "BYMC": [
+          "1-86"
+        ],
+        "BYAC": [],
+        "BYRC": []
+      },
+      "src/main/kotlin/com/hy/ide/cmcc/MyMessageBundle.kt": {
+        "BYMC": [
+          "1-22"
+        ],
+        "BYAC": [],
+        "BYRC": []
+      },
+      "src/main/kotlin/com/hy/ide/cmcc/MyToolWindowFactory.kt": {
+        "BYMC": [
+          "1-37"
+        ],
+        "BYAC": [],
+        "BYRC": []
+      },
+      "src/main/kotlin/com/hy/ide/cmcc/ResetCommitAttributionAction.kt": {
+        "BYMC": [
+          "1-70"
+        ],
+        "BYAC": [],
+        "BYRC": []
+      },
+      "src/main/resources/META-INF/plugin.xml": {
+        "BYMC": [
+          "8",
+          "28",
+          "33",
+          "49-50"
+        ],
+        "BYAC": [
+          "16"
+        ],
+        "BYRC": []
+      }
+    }
+  },
+  "ipa_account": "luhaoyu",
+  "commit_timestamp": 1783765633,
+  "requirement_id": ""
+}
