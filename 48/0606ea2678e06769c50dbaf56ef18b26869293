@@ -1,0 +1,77 @@
+src/main/kotlin/MockAIAction.kt
+  s_45b4a8cfc05707::t_95ccc736315726 48,52-57,154,158-177,252
+  s_45b4a8cfc05707::t_ed8bc8c99da22f 17-21,32,36-39,75,83,89,95,102,217-219
+  s_45b4a8cfc05707::t_9b6e81c7ce33a8 42,46
+  s_45b4a8cfc05707::t_b9db715aa0ce95 60-61,67,71-74,76-82,88,90,100-101,103-117,220,222-227,229-230,234-235,253-267
+  s_45b4a8cfc05707::t_902d9c3a676809 239-245
+  s_45b4a8cfc05707::t_4510dfb28c955c 63-65,68-70,84-86,233,236
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.2",
+  "base_commit_sha": "480606ea2678e06769c50dbaf56ef18b26869293",
+  "prompts": {
+    "45b4a8cfc05707f3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f3656-b952-76a0-8066-0b5919a75ecf",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "luhaoyu <haoyu3@163.com>",
+      "messages": [],
+      "total_additions": 177,
+      "total_deletions": 125,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    }
+  },
+  "commit_stats": {
+    "git_diff_added_lines": 133,
+    "git_diff_deleted_lines": 81,
+    "ai_additions": 126,
+    "ai_accepted": 126,
+    "BYMC": 1,
+    "mixed_additions": 0,
+    "BYAC": 126,
+    "BYRC": 0,
+    "per_file": {
+      "gradle.properties": {
+        "BYMC": [
+          "2"
+        ],
+        "BYAC": [],
+        "BYRC": []
+      },
+      "src/main/kotlin/MockAIAction.kt": {
+        "BYMC": [],
+        "BYAC": [
+          "17-21",
+          "32",
+          "36-39",
+          "42",
+          "46",
+          "48",
+          "52-57",
+          "60-61",
+          "63-65",
+          "67-86",
+          "88-90",
+          "95",
+          "100-117",
+          "154",
+          "158-177",
+          "217-220",
+          "222-227",
+          "229-230",
+          "233-236",
+          "239-245",
+          "252-267"
+        ],
+        "BYRC": []
+      }
+    }
+  },
+  "ipa_account": "luhaoyu",
+  "commit_timestamp": 1783757724,
+  "requirement_id": ""
+}
