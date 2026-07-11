@@ -93,7 +93,6 @@ class GitAiRuntimeManager {
         }
 
         try {
-            stopBackgroundService(target)
             installBundledBinary(target)
             if (!supportsVersionCode(target)) {
                 restoreBackup(backup, target)
@@ -135,7 +134,6 @@ class GitAiRuntimeManager {
         }
 
         try {
-            if (Files.exists(target)) stopBackgroundService(target)
             restoreBackup(backup, target)
         } catch (exception: Exception) {
             return GitAiRuntimeResult(
@@ -272,7 +270,12 @@ class GitAiRuntimeManager {
     }
 
     private fun moveReplacing(source: Path, target: Path) {
+        // Match the Git AI installer behavior: let its background service release the executable
+        // before the existing short retry loop attempts to replace it.
+        if (Files.exists(target)) stopBackgroundService(target)
+
         var lastFailure: IOException? = null
+        var hardShutdownRequested = false
         repeat(FILE_REPLACE_ATTEMPTS) { attempt ->
             try {
                 try {
@@ -288,6 +291,11 @@ class GitAiRuntimeManager {
                 return
             } catch (exception: IOException) {
                 lastFailure = exception
+                if (SystemInfo.isWindows && !hardShutdownRequested) {
+                    stopBackgroundService(target, hard = true)
+                    terminateManagedWindowsProcesses(target)
+                    hardShutdownRequested = true
+                }
                 if (attempt < FILE_REPLACE_ATTEMPTS - 1) Thread.sleep(FILE_REPLACE_RETRY_MILLIS)
             }
         }
@@ -312,8 +320,30 @@ class GitAiRuntimeManager {
         }
     }
 
-    private fun stopBackgroundService(target: Path) {
-        runBinary(target, listOf("bg", "shutdown"))
+    private fun stopBackgroundService(target: Path, hard: Boolean = false) {
+        runBinary(target, buildList {
+            add("bg")
+            add("shutdown")
+            if (hard) add("--hard")
+        })
+    }
+
+    private fun terminateManagedWindowsProcesses(target: Path) {
+        val officialInstallDirectory = defaultExecutablePath().parent ?: return
+        val managedExecutables = mutableSetOf(normalizedPath(target).toString())
+        // The official installer owns this shim.  Do not kill a git.exe beside an arbitrary
+        // user-configured git-ai executable, as it may be the user's normal Git client.
+        if (samePath(target.parent ?: return, officialInstallDirectory)) {
+            managedExecutables += normalizedPath(officialInstallDirectory.resolve("git.exe")).toString()
+        }
+        ProcessHandle.allProcesses().forEach { process ->
+            val command = process.info().command().orElse(null) ?: return@forEach
+            val commandPath = runCatching { normalizedPath(Paths.get(command)).toString() }.getOrNull()
+                ?: return@forEach
+            if (managedExecutables.any { it.equals(commandPath, ignoreCase = true) }) {
+                runCatching { process.destroyForcibly() }
+            }
+        }
     }
 
     private fun runBinary(target: Path, arguments: List<String>): ProcessResult? = runCatching {
