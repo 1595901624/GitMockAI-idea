@@ -1,0 +1,127 @@
+src/main/kotlin/com/hy/ide/cmcc/MockAIConfigurable.kt
+  s_dbe00846b66fad::t_c4134ee5a2bc0b 4-5,9,33,59-64,269,272-273,277,296,299-300,304
+  s_dbe00846b66fad::t_9e57cca77ba195 3,16,18,34,65-66,98,123,125,139,203-218,221,236-242,251-255,259-268,270-271,274,276,290-295,297-298,301-303,305
+  s_dbe00846b66fad::t_d84494bf41bc23 219-220,243,250,256-258
+  s_dbe00846b66fad::t_fde3a3302dcdf0 10,17,53-58,69-72,77-84,89,222-235,244-249,275,278-289,334-336
+src/main/kotlin/com/hy/ide/cmcc/MockAIAction.kt
+  s_dbe00846b66fad::t_b644ebd1e91da8 64-65,67-74,76,81,97,114
+  s_dbe00846b66fad::t_ac4cb6dad489e2 41,43,51,66
+src/main/kotlin/com/hy/ide/cmcc/ResetCommitAttributionAction.kt
+  s_dbe00846b66fad::t_b644ebd1e91da8 22-23,25-33
+  s_dbe00846b66fad::t_ac4cb6dad489e2 19,24
+src/main/kotlin/com/hy/ide/cmcc/MockAISettings.kt
+  s_dbe00846b66fad::t_9dcde58df1a070 39,60,70,80
+src/main/kotlin/com/hy/ide/cmcc/GitAiRuntimeManager.kt
+  s_dbe00846b66fad::t_30e6dd78fd023d 1-3,5-6,8-9,11-51,58-64,72-80,82-114,120-130,132-165,167,170-174,179,181-199,203-293,295-300,302-341,349-350,360-361,363-367,369-378
+  s_dbe00846b66fad::t_9912801e805c60 175-178,180,294
+  s_dbe00846b66fad::t_e504ab131ec734 56,65-71,200-202
+  s_dbe00846b66fad::t_ddefc272d4f834 7,351-354,356,358
+  s_dbe00846b66fad::t_d84494bf41bc23 4,10,52-55,57,81,115-119,131,342-348,355,357,359,362
+  s_dbe00846b66fad::t_b644ebd1e91da8 368
+  s_dbe00846b66fad::t_e573e40bd7edcc 166,168-169
+  s_dbe00846b66fad::t_c00e63f2c6d942 301
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.2",
+  "base_commit_sha": "2c11d347b748944fb6026baa0687f776f1890d77",
+  "prompts": {
+    "dbe00846b66fad6a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f50ce-bc69-7c63-a608-9fea8d551c33",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "luhaoyu <haoyu3@163.com>",
+      "messages": [],
+      "total_additions": 620,
+      "total_deletions": 70,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    }
+  },
+  "commit_stats": {
+    "git_diff_added_lines": 565,
+    "git_diff_deleted_lines": 15,
+    "ai_additions": 560,
+    "ai_accepted": 560,
+    "BYMC": 5,
+    "mixed_additions": 0,
+    "BYAC": 560,
+    "BYRC": 0,
+    "per_file": {
+      "src/main/kotlin/com/hy/ide/cmcc/GitAiRuntimeManager.kt": {
+        "BYMC": [],
+        "BYAC": [
+          "1-378"
+        ],
+        "BYRC": []
+      },
+      "src/main/kotlin/com/hy/ide/cmcc/MockAIAction.kt": {
+        "BYMC": [],
+        "BYAC": [
+          "41",
+          "43",
+          "51",
+          "64-74",
+          "76",
+          "81",
+          "97",
+          "114"
+        ],
+        "BYRC": []
+      },
+      "src/main/kotlin/com/hy/ide/cmcc/MockAIConfigurable.kt": {
+        "BYMC": [
+          "306-307"
+        ],
+        "BYAC": [
+          "3-5",
+          "9-10",
+          "16-18",
+          "33-34",
+          "53-66",
+          "69-72",
+          "77-84",
+          "89",
+          "98",
+          "123",
+          "125",
+          "139",
+          "203-305",
+          "334-336"
+        ],
+        "BYRC": []
+      },
+      "src/main/kotlin/com/hy/ide/cmcc/MockAISettings.kt": {
+        "BYMC": [],
+        "BYAC": [
+          "39",
+          "60",
+          "70",
+          "80"
+        ],
+        "BYRC": []
+      },
+      "src/main/kotlin/com/hy/ide/cmcc/ResetCommitAttributionAction.kt": {
+        "BYMC": [],
+        "BYAC": [
+          "19",
+          "22-33"
+        ],
+        "BYRC": []
+      },
+      "src/main/resources/META-INF/plugin.xml": {
+        "BYMC": [
+          "33",
+          "45-46"
+        ],
+        "BYAC": [],
+        "BYRC": []
+      }
+    }
+  },
+  "ipa_account": "luhaoyu",
+  "commit_timestamp": 1783770721,
+  "requirement_id": ""
+}
