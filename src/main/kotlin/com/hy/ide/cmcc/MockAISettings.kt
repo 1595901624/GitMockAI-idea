@@ -36,6 +36,7 @@ data class MockAISettingsSnapshot(
     val fixedId: String,
     val modelMode: ModelMode,
     val customModel: String,
+    val gitAiPath: String,
 )
 
 @Service(Service.Level.APP)
@@ -56,6 +57,7 @@ class MockAISettings : PersistentStateComponent<MockAISettings.SettingsState> {
         fixedId = settingsState.fixedId,
         modelMode = settingsState.modelMode.toEnumOrDefault(ModelMode.OMIT),
         customModel = settingsState.customModel,
+        gitAiPath = settingsState.gitAiPath,
     )
 
     fun update(snapshot: MockAISettingsSnapshot) {
@@ -65,6 +67,7 @@ class MockAISettings : PersistentStateComponent<MockAISettings.SettingsState> {
         settingsState.fixedId = snapshot.fixedId
         settingsState.modelMode = snapshot.modelMode.name
         settingsState.customModel = snapshot.customModel
+        settingsState.gitAiPath = snapshot.gitAiPath
     }
 
     class SettingsState {
@@ -74,6 +77,7 @@ class MockAISettings : PersistentStateComponent<MockAISettings.SettingsState> {
         var fixedId: String = ""
         var modelMode: String = ModelMode.OMIT.name
         var customModel: String = ""
+        var gitAiPath: String = ""
     }
 
     companion object {

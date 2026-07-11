@@ -38,8 +38,9 @@ open class MockAIAction : DumbAwareAction() {
         } else {
             CommandOptions()
         }
+        val gitAiPath = MockAISettings.getInstance().snapshot().gitAiPath
         ApplicationManager.getApplication().executeOnPooledThread {
-            runGitAI(project, filePaths, commandOptions)
+            runGitAI(project, filePaths, commandOptions, gitAiPath)
         }
     }
 
@@ -47,6 +48,7 @@ open class MockAIAction : DumbAwareAction() {
         project: Project,
         selectedPaths: List<String>,
         options: CommandOptions,
+        gitAiPath: String,
     ) {
         try {
             val filePaths = expandDirectoryPaths(selectedPaths)
@@ -59,13 +61,24 @@ open class MockAIAction : DumbAwareAction() {
 
             val workingDirectory = project.basePath?.let(::File)
             val logs = mutableListOf<String>()
+            val runtime = GitAiRuntimeManager.getInstance().ensurePatched(
+                project,
+                gitAiPath,
+            )
+            val executable = runtime.executable
+            if (!runtime.success || executable == null) {
+                if (!project.isDisposed) {
+                    notify(project, "$actionTitle 执行失败", formatLog(runtime.message, null), NotificationType.ERROR)
+                }
+                return
+            }
 
-            val statusCommand = listOf("git", "ai", "bg", "status")
+            val statusCommand = listOf(executable.toString(), "bg", "status")
             val statusResult = runCommand(statusCommand, workingDirectory)
             logs += statusResult.format(statusCommand)
 
             if (!statusResult.isBgReady()) {
-                val startCommand = listOf("git", "ai", "bg", "start")
+                val startCommand = listOf(executable.toString(), "bg", "start")
                 val startResult = runCommand(startCommand, workingDirectory)
                 logs += startResult.format(startCommand)
                 if (startResult.exitCode != 0) {
@@ -81,7 +94,7 @@ open class MockAIAction : DumbAwareAction() {
                 }
             }
 
-            val checkpointCommand = buildCheckpointCommand(filePaths, options)
+            val checkpointCommand = listOf(executable.toString()) + buildCheckpointCommand(filePaths, options)
             val checkpointResult = runCommand(checkpointCommand, workingDirectory)
             logs += checkpointResult.format(checkpointCommand)
             if (!project.isDisposed) {
@@ -98,8 +111,7 @@ open class MockAIAction : DumbAwareAction() {
     }
 
     private fun buildCheckpointCommand(filePaths: List<String>, options: CommandOptions): List<String> = buildList {
-        add("git")
-        addAll(listOf("ai", "checkpoint", checkpointAgent))
+        addAll(listOf("checkpoint", checkpointAgent))
         addAll(filePaths)
         options.tool?.let { addAll(listOf("--tool", it)) }
         options.id?.let { addAll(listOf("--id", it)) }

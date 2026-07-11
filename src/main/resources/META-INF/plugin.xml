@@ -30,7 +30,7 @@
                            isLogByDefault="true"/>
         <applicationConfigurable id="com.hy.ide.cmcc.GitMockAI.Settings"
                                  parentId="tools"
-                                 displayName="Mark AI"
+                                 displayName="Git AI 助手"
                                  instance="com.hy.ide.cmcc.MockAIConfigurable"/>
     </extensions>
 
@@ -42,8 +42,8 @@
             <separator/>
             <action id="com.hy.ide.cmcc.GitMockAI.MockAI"
                     class="com.hy.ide.cmcc.MockAIAction"
-                    text="Mock AI"
-                    description="Create a Mock AI checkpoint for the selected files"/>
+                    text="标记为 AI 生成的文件"
+                    description="标记当前窗口所有选中文件为 AI 生成的文件"/>
             <action id="com.hy.ide.cmcc.GitMockAI.ResetCommitAttribution"
                     class="com.hy.ide.cmcc.ResetCommitAttributionAction"
                     text="取消当前窗口所有文件的标记"

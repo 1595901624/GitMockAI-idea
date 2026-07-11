@@ -16,9 +16,21 @@ class ResetCommitAttributionAction : DumbAwareAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
+        val gitAiPath = MockAISettings.getInstance().snapshot().gitAiPath
         ApplicationManager.getApplication().executeOnPooledThread {
             try {
-                val command = listOf("git", "ai", "checkpoint", "--reset")
+                val runtime = GitAiRuntimeManager.getInstance().ensurePatched(
+                    project,
+                    gitAiPath,
+                )
+                val executable = runtime.executable
+                if (!runtime.success || executable == null) {
+                    if (!project.isDisposed) {
+                        notify(project, "重置提交归因失败", formatLog(null, runtime.message, null), NotificationType.ERROR)
+                    }
+                    return@executeOnPooledThread
+                }
+                val command = listOf(executable.toString(), "checkpoint", "--reset")
                 val process = ProcessBuilder(command)
                     .directory(project.basePath?.let(::File))
                     .redirectErrorStream(true)
