@@ -36,12 +36,21 @@
     </extensions>
 
     <actions>
-        <action id="com.hy.ide.cmcc.GitMockAI.MockAI"
-                class="com.hy.ide.cmcc.MockAIAction"
-                text="Mock AI"
-                description="Create a Mock AI checkpoint for the selected files">
-            <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
-        </action>
+        <group id="com.hy.ide.cmcc.GitMockAI.CommitActions" popup="false">
+            <add-to-group group-id="ChangesViewPopupMenu"
+                          anchor="after"
+                          relative-to-action="Diff.ShowStandaloneDiff"/>
+            <separator/>
+            <action id="com.hy.ide.cmcc.GitMockAI.MockAI"
+                    class="com.hy.ide.cmcc.MockAIAction"
+                    text="Mock AI"
+                    description="Create a Mock AI checkpoint for the selected files"/>
+            <action id="com.hy.ide.cmcc.GitMockAI.ResetCommitAttribution"
+                    class="com.hy.ide.cmcc.ResetCommitAttributionAction"
+                    text="重置提交归因(当前窗口所有)"
+                    description="重置提交窗口中的所有 AI 归因"/>
+            <separator/>
+        </group>
     </actions>
 
 </idea-plugin>
