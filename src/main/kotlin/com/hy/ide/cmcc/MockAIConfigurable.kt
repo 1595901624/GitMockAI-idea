@@ -52,7 +52,7 @@ class MockAIConfigurable : Configurable {
         }
         gitAiPath = TextFieldWithBrowseButton(
             JBTextField().apply {
-                emptyText.text = "留空时使用默认路径"
+                emptyText.text = "当前是默认路径：${GitAiRuntimeManager.getInstance().defaultExecutablePath()}"
             },
         ).apply {
             toolTipText = "留空时使用 ~/.git-ai/bin/git-ai（Windows 为 git-ai.exe）"
@@ -78,15 +78,21 @@ class MockAIConfigurable : Configurable {
             addRow(root, 1, "Git AI 路径：", JBLabel("可选"), gitAiPath)
             addWideRow(root, 2, "运行时状态：", runtimeStatus)
             addWideRow(root, 3, "运行时操作：", runtimeButtons())
-            addSectionTitle(root, 4, "命令")
-            addRow(root, 5, "工具（tool）：", toolMode, customTool)
-            addRow(root, 6, "会话 ID（id）：", idMode, fixedId)
-            addRow(root, 7, "大模型（model）：", modelMode, customModel)
+            addWideRow(
+                root,
+                4,
+                "注意：",
+                JBLabel("使用插件版本的 git-ai 文件后，Trae、Qoder、iHomeCoder 的 hook 功能将失效。"),
+            )
+            addSectionTitle(root, 5, "命令")
+            addRow(root, 6, "工具（tool）：", toolMode, customTool)
+            addRow(root, 7, "会话 ID（id）：", idMode, fixedId)
+            addRow(root, 8, "大模型（model）：", modelMode, customModel)
             root.add(
                 JPanel(),
                 GridBagConstraints().apply {
                     gridx = 0
-                    gridy = 8
+                    gridy = 9
                     gridwidth = 3
                     weightx = 1.0
                     weighty = 1.0

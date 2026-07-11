@@ -9,6 +9,7 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.SystemInfo
 import java.awt.Component
 import java.io.BufferedReader
+import java.io.IOException
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import java.nio.file.AtomicMoveNotSupportedException
@@ -65,7 +66,7 @@ class GitAiRuntimeManager {
             if (requireOriginalForInstall) {
                 return GitAiRuntimeResult(
                     target,
-                    "当前 Git AI 已支持 git ai version-code，判定不是原版，无法备份。",
+                    "当前版本已经是插件版本了。",
                     success = false,
                 )
             }
@@ -73,7 +74,7 @@ class GitAiRuntimeManager {
         }
 
         val confirmation = """
-            GitAI助手需要使用包含 version-code 命令的 Git AI 版本。
+            GitAI助手需要使用插件版本的 Git AI 版本。
 
             当前文件：$target
             将先备份当前 Git AI，然后替换为插件内置版本。可随时在设置中恢复原版。
@@ -97,7 +98,7 @@ class GitAiRuntimeManager {
             if (!supportsVersionCode(target)) {
                 restoreBackup(backup, target)
                 return GitAiRuntimeResult(
-                    message = "替换后的 Git AI 未通过 version-code 校验，已自动恢复原版。",
+                    message = "替换后的 Git AI 未通过校验，已自动恢复原版。",
                     success = false,
                 )
             }
@@ -119,6 +120,7 @@ class GitAiRuntimeManager {
     ): GitAiRuntimeResult = operationLock.withLock {
         val target = resolveTarget(configuredPath, requireExisting = false)
             ?: return GitAiRuntimeResult(message = "无法确定 Git AI 的目标路径。", success = false)
+        runCatching { pruneToSingleBackup() }
         val backup = latestBackup(target)
             ?: return GitAiRuntimeResult(message = "没有找到此 Git AI 的可恢复备份。", success = false)
 
@@ -149,20 +151,35 @@ class GitAiRuntimeManager {
         if (target == null || !Files.isRegularFile(target)) {
             return GitAiRuntimeStatus(null, false, 0, "未找到 Git AI。")
         }
+        runCatching { pruneToSingleBackup() }
         val backupCount = backupsFor(target).size
-        val patched = supportsVersionCode(target)
+        val versionCode = versionCode(target)
+        val patched = versionCode != null
+        val runtimeVersion = if (patched) {
+            "插件版本 $versionCode"
+        } else {
+            val originalVersion = runBinary(target, listOf("-v"))
+                ?.takeIf { it.exitCode == 0 }
+                ?.output
+                ?.trim()
+                ?.ifEmpty { null }
+                ?: "未知版本"
+            "原版 $originalVersion"
+        }
         val message = when {
-            patched -> "已启用插件版本；可恢复备份：$backupCount 个"
-            backupCount > 0 -> "当前为原版或已更新版本；可恢复备份：$backupCount 个"
-            else -> "当前为原版 Git AI，尚未创建备份"
+            backupCount > 0 -> "$runtimeVersion；可恢复备份：$backupCount 个"
+            else -> "$runtimeVersion；尚未创建备份"
         }
         return GitAiRuntimeStatus(target, patched, backupCount, message)
     }
 
+    fun defaultExecutablePath(): Path =
+        homeDirectory.resolve(".git-ai").resolve("bin").resolve(executableName()).toAbsolutePath().normalize()
+
     private fun resolveTarget(configuredPath: String?, requireExisting: Boolean): Path? {
         configuredPath?.trim()?.takeIf { it.isNotEmpty() }?.let { return normalizedPath(Paths.get(it)) }
 
-        val officialPath = homeDirectory.resolve(".git-ai").resolve("bin").resolve(executableName())
+        val officialPath = defaultExecutablePath()
         if (Files.exists(officialPath)) return normalizedPath(officialPath)
 
         findOnPath()?.let { return normalizedPath(it) }
@@ -192,13 +209,18 @@ class GitAiRuntimeManager {
     }
 
     private fun supportsVersionCode(target: Path): Boolean {
-        val result = runBinary(target, listOf("version-code")) ?: return false
-        return result.exitCode == 0 && VERSION_CODE_PATTERN.matches(result.output.trim())
+        return versionCode(target) != null
+    }
+
+    private fun versionCode(target: Path): String? {
+        val result = runBinary(target, listOf("version-code")) ?: return null
+        val output = result.output.trim()
+        return output.takeIf { result.exitCode == 0 && VERSION_CODE_PATTERN.matches(it) }
     }
 
     private fun backupOriginal(target: Path): Path {
         require(!supportsVersionCode(target)) {
-            "当前 Git AI 已支持 git ai version-code，判定不是原版，无法备份。"
+            "当前版本已经是插件版本了。"
         }
         val contentHash = sha256(target)
         val sourceKey = sha256(target.toString().toByteArray(StandardCharsets.UTF_8)).take(SOURCE_KEY_LENGTH)
@@ -216,6 +238,7 @@ class GitAiRuntimeManager {
             setProperty("version", runBinary(target, listOf("--version"))?.output?.trim().orEmpty())
         }
         Files.newOutputStream(directory.resolve(MANIFEST_FILE_NAME)).use { manifest.store(it, "GitMockAI Git AI backup") }
+        pruneBackupsExcept(directory)
         return backup
     }
 
@@ -249,16 +272,26 @@ class GitAiRuntimeManager {
     }
 
     private fun moveReplacing(source: Path, target: Path) {
-        try {
-            Files.move(
-                source,
-                target,
-                StandardCopyOption.REPLACE_EXISTING,
-                StandardCopyOption.ATOMIC_MOVE,
-            )
-        } catch (_: AtomicMoveNotSupportedException) {
-            Files.move(source, target, StandardCopyOption.REPLACE_EXISTING)
+        var lastFailure: IOException? = null
+        repeat(FILE_REPLACE_ATTEMPTS) { attempt ->
+            try {
+                try {
+                    Files.move(
+                        source,
+                        target,
+                        StandardCopyOption.REPLACE_EXISTING,
+                        StandardCopyOption.ATOMIC_MOVE,
+                    )
+                } catch (_: AtomicMoveNotSupportedException) {
+                    Files.move(source, target, StandardCopyOption.REPLACE_EXISTING)
+                }
+                return
+            } catch (exception: IOException) {
+                lastFailure = exception
+                if (attempt < FILE_REPLACE_ATTEMPTS - 1) Thread.sleep(FILE_REPLACE_RETRY_MILLIS)
+            }
         }
+        throw IOException("Git AI 文件仍被进程占用，无法替换：$target", lastFailure)
     }
 
     private fun makeExecutable(path: Path) {
@@ -311,9 +344,53 @@ class GitAiRuntimeManager {
     private fun backupFromManifest(manifest: Path, target: Path): Path? = runCatching {
         val properties = Properties()
         Files.newInputStream(manifest).use(properties::load)
-        if (properties.getProperty("sourcePath") != target.toString()) return@runCatching null
+        val sourcePath = properties.getProperty("sourcePath")?.let(Paths::get) ?: return@runCatching null
+        if (!samePath(sourcePath, target)) return@runCatching null
         manifest.parent.resolve(properties.getProperty("backupFile")).takeIf(Files::isRegularFile)
     }.getOrNull()
+
+    private fun samePath(first: Path, second: Path): Boolean {
+        val firstPath = normalizedPath(first).toString()
+        val secondPath = normalizedPath(second).toString()
+        return if (SystemInfo.isWindows) firstPath.equals(secondPath, ignoreCase = true) else firstPath == secondPath
+    }
+
+    private fun pruneBackupsExcept(keepDirectory: Path) {
+        if (!Files.isDirectory(backupRoot)) return
+        val backupDirectories = Files.walk(backupRoot, BACKUP_SEARCH_DEPTH).use { paths ->
+            paths.iterator().asSequence()
+                .filter { it.fileName.toString() == MANIFEST_FILE_NAME }
+                .map(Path::getParent)
+                .filterNot { samePath(it, keepDirectory) }
+                .toList()
+        }
+        backupDirectories.forEach(::deleteRecursively)
+        Files.list(backupRoot).use { paths ->
+            paths.iterator().asSequence()
+                .filter(Files::isDirectory)
+                .filter { directory -> Files.list(directory).use { !it.findAny().isPresent } }
+                .forEach(Files::deleteIfExists)
+        }
+    }
+
+    private fun pruneToSingleBackup() {
+        if (!Files.isDirectory(backupRoot)) return
+        val latestManifest = Files.walk(backupRoot, BACKUP_SEARCH_DEPTH).use { paths ->
+            paths.iterator().asSequence()
+                .filter { it.fileName.toString() == MANIFEST_FILE_NAME }
+                .maxByOrNull { Files.getLastModifiedTime(it).toMillis() }
+        } ?: return
+        pruneBackupsExcept(latestManifest.parent)
+    }
+
+    private fun deleteRecursively(directory: Path) {
+        if (!Files.exists(directory)) return
+        Files.walk(directory).use { paths ->
+            paths.iterator().asSequence()
+                .sortedByDescending { it.nameCount }
+                .forEach(Files::deleteIfExists)
+        }
+    }
 
     private fun sha256(path: Path): String = sha256(Files.readAllBytes(path))
 
@@ -370,6 +447,8 @@ class GitAiRuntimeManager {
         const val SOURCE_KEY_LENGTH = 16
         const val MANIFEST_FILE_NAME = "manifest.properties"
         const val BACKUP_SEARCH_DEPTH = 3
+        const val FILE_REPLACE_ATTEMPTS = 50
+        const val FILE_REPLACE_RETRY_MILLIS = 100L
         val VERSION_CODE_PATTERN = Regex("\\d+")
 
         fun getInstance(): GitAiRuntimeManager =
