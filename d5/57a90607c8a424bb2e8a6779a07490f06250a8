@@ -1,32 +1,7 @@
-src/main/resources/META-INF/pluginIcon.svg
-  s_fb14c279712616::t_610fcfe1886dac 2-7
-  s_fb14c279712616::t_57f8bdacfafcbb 1,8
 ---
 {
   "schema_version": "authorship/3.0.0",
-  "git_ai_version": "1.0.2",
+  "git_ai_version": "1.0.0-2",
   "base_commit_sha": "d557a90607c8a424bb2e8a6779a07490f06250a8",
-  "prompts": {},
-  "commit_stats": {
-    "git_diff_added_lines": 8,
-    "git_diff_deleted_lines": 0,
-    "ai_additions": 8,
-    "ai_accepted": 8,
-    "BYMC": 0,
-    "mixed_additions": 0,
-    "BYAC": 8,
-    "BYRC": 0,
-    "per_file": {
-      "src/main/resources/META-INF/pluginIcon.svg": {
-        "BYMC": [],
-        "BYAC": [
-          "1-8"
-        ],
-        "BYRC": []
-      }
-    }
-  },
-  "ipa_account": "luhaoyu",
-  "commit_timestamp": 1783773955,
-  "requirement_id": ""
+  "prompts": {}
 }
