@@ -33,7 +33,7 @@ class MockAIConfigurable : Configurable {
     private lateinit var gitAiPath: TextFieldWithBrowseButton
     private lateinit var runtimeStatus: JBLabel
 
-    override fun getDisplayName(): String = "Mock AI"
+    override fun getDisplayName(): String = "GIT AI 助手"
 
     override fun createComponent(): JComponent {
         toolMode = ComboBox(ToolMode.entries.toTypedArray())

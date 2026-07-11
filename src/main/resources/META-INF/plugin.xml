@@ -13,7 +13,7 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
-        为 Git 提交创建 Mock AI 检查点，并管理提交中的 AI 归因信息。
+        为 Git 提交创建 AI 检查点，并管理提交中的 AI 归因信息。
         ]]></description>
 
     <!-- Product and plugin compatibility requirements.
