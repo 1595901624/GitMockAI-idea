@@ -1,0 +1,79 @@
+src/main/kotlin/com/hy/ide/cmcc/MockAIConfigurable.kt
+  s_dbe00846b66fad::t_4b5fddcfcb76cb 81-90,95
+  s_dbe00846b66fad::t_92e9dc77c2d43f 55
+src/main/kotlin/com/hy/ide/cmcc/GitAiRuntimeManager.kt
+  s_dbe00846b66fad::t_71a2a4ec8e4bb6 12,156-168,170-171,176-177,182,212-215,217-218,241,275-292,294,347-348,352-373,384-393,450-451
+  s_dbe00846b66fad::t_3008b922d813cd 123,154,374-383
+  s_dbe00846b66fad::t_92e9dc77c2d43f 216
+  s_dbe00846b66fad::t_3ac509200d72d1 69,223
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.2",
+  "base_commit_sha": "d1cfca49efd02b6bf35830e09cecf6ab867e5cce",
+  "prompts": {
+    "dbe00846b66fad6a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f50ce-bc69-7c63-a608-9fea8d551c33",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "luhaoyu <haoyu3@163.com>",
+      "messages": [],
+      "total_additions": 110,
+      "total_deletions": 25,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    }
+  },
+  "commit_stats": {
+    "git_diff_added_lines": 112,
+    "git_diff_deleted_lines": 27,
+    "ai_additions": 108,
+    "ai_accepted": 108,
+    "BYMC": 3,
+    "mixed_additions": 0,
+    "BYAC": 108,
+    "BYRC": 0,
+    "per_file": {
+      "src/main/kotlin/com/hy/ide/cmcc/GitAiRuntimeManager.kt": {
+        "BYMC": [
+          "77",
+          "101",
+          "178"
+        ],
+        "BYAC": [
+          "12",
+          "69",
+          "123",
+          "154",
+          "156-168",
+          "170-171",
+          "176-177",
+          "182",
+          "212-218",
+          "223",
+          "241",
+          "275-292",
+          "294",
+          "347-348",
+          "352-393",
+          "450-451"
+        ],
+        "BYRC": []
+      },
+      "src/main/kotlin/com/hy/ide/cmcc/MockAIConfigurable.kt": {
+        "BYMC": [],
+        "BYAC": [
+          "55",
+          "81-90",
+          "95"
+        ],
+        "BYRC": []
+      }
+    }
+  },
+  "ipa_account": "luhaoyu",
+  "commit_timestamp": 1783772340,
+  "requirement_id": ""
+}
