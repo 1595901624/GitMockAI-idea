@@ -16,7 +16,7 @@ import java.security.SecureRandom
 
 open class MockAIAction : DumbAwareAction() {
     protected open val checkpointAgent = "mock_ai"
-    protected open val actionTitle = "Mock AI"
+    protected open val actionTitle = "GIT AI 助手"
     protected open val usesMockAiSettings = true
 
     override fun update(event: AnActionEvent) {
@@ -86,7 +86,7 @@ open class MockAIAction : DumbAwareAction() {
                         notify(
                             project,
                             "$actionTitle 执行失败",
-                            formatLog(logs.joinToString("\n\n"), startResult.exitCode),
+                            formatCommandLogs(logs, startResult.exitCode),
                             NotificationType.ERROR,
                         )
                     }
@@ -100,7 +100,7 @@ open class MockAIAction : DumbAwareAction() {
             if (!project.isDisposed) {
                 val type = if (checkpointResult.exitCode == 0) NotificationType.INFORMATION else NotificationType.ERROR
                 val title = if (checkpointResult.exitCode == 0) "$actionTitle 执行日志" else "$actionTitle 执行失败"
-                notify(project, title, formatLog(logs.joinToString("\n\n"), checkpointResult.exitCode), type)
+                notify(project, title, formatCommandLogs(logs, checkpointResult.exitCode), type)
             }
         } catch (exception: Exception) {
             if (!project.isDisposed) {
@@ -138,6 +138,10 @@ open class MockAIAction : DumbAwareAction() {
             .replace("\n", "<br>")
             .replace("\r", "<br>")
     }
+
+    /** Shows the most recently executed command first in the notification. */
+    private fun formatCommandLogs(logs: List<String>, exitCode: Int?): String =
+        formatLog(logs.asReversed().joinToString("\n\n"), exitCode)
 
     private fun selectedFilePaths(event: AnActionEvent): List<String> {
         // These keys overlap, and some IDE versions expose all changes through fallback keys.
