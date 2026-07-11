@@ -12,12 +12,13 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vcs.VcsDataKeys
 import com.intellij.openapi.vcs.changes.ChangesUtil
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.StandardCopyOption
 import java.security.SecureRandom
 
-class MockAIAction : DumbAwareAction() {
+open class MockAIAction : DumbAwareAction() {
+    protected open val checkpointAgent = "mock_ai"
+    protected open val actionTitle = "Mock AI"
+    protected open val usesMockAiSettings = true
+
     override fun update(event: AnActionEvent) {
         // Newer IDE versions may not expose the selected VCS files while a compact popup is being updated.
         // Hiding the action here would therefore make it disappear completely from the context menu.
@@ -28,62 +29,92 @@ class MockAIAction : DumbAwareAction() {
         val project = event.project ?: return
         val filePaths = selectedFilePaths(event)
         if (filePaths.isEmpty()) {
-            notify(project, "Mock AI", "未能获取选中的文件，请重新选择后重试。", NotificationType.WARNING)
+            notify(project, actionTitle, "未能获取选中的文件，请重新选择后重试。", NotificationType.WARNING)
             return
         }
 
-        val platform = XaiPlatform.current()
-        if (platform.resourcePath == null) {
-            notify(
-                project,
-                "Mock AI 暂不支持当前系统",
-                "当前仅支持 Windows。",
-                NotificationType.WARNING,
-            )
-            return
+        val commandOptions = if (usesMockAiSettings) {
+            resolveCommandOptions(MockAISettings.getInstance().snapshot())
+        } else {
+            CommandOptions()
         }
-
-        val commandOptions = resolveCommandOptions(MockAISettings.getInstance().snapshot())
         ApplicationManager.getApplication().executeOnPooledThread {
-            runXai(project, platform.resourcePath, filePaths, commandOptions)
+            runGitAI(project, filePaths, commandOptions)
         }
     }
 
-    private fun runXai(
+    private fun runGitAI(
         project: Project,
-        resourcePath: String,
-        filePaths: List<String>,
+        selectedPaths: List<String>,
         options: CommandOptions,
     ) {
         try {
-            val executable = extractExecutable(resourcePath)
-            val command = buildList {
-                add(executable.toString())
-                addAll(listOf("ai", "checkpoint", "mock_ai"))
-                addAll(filePaths)
-                options.tool?.let { addAll(listOf("--tool", it)) }
-                options.id?.let { addAll(listOf("--id", it)) }
-                options.model?.let { addAll(listOf("--model", it)) }
+            val filePaths = expandDirectoryPaths(selectedPaths)
+            if (filePaths.isEmpty()) {
+                if (!project.isDisposed) {
+                    notify(project, actionTitle, "所选目录中没有可执行检查点的文件。", NotificationType.WARNING)
+                }
+                return
             }
 
-            val process = ProcessBuilder(command)
-                .directory(project.basePath?.let(::File))
-                .redirectErrorStream(true)
-                .start()
+            val workingDirectory = project.basePath?.let(::File)
+            val logs = mutableListOf<String>()
 
-            val output = process.inputStream.bufferedReader().use { it.readText() }
-            val exitCode = process.waitFor()
+            val statusCommand = listOf("git", "ai", "bg", "status")
+            val statusResult = runCommand(statusCommand, workingDirectory)
+            logs += statusResult.format(statusCommand)
+
+            if (!statusResult.isBgReady()) {
+                val startCommand = listOf("git", "ai", "bg", "start")
+                val startResult = runCommand(startCommand, workingDirectory)
+                logs += startResult.format(startCommand)
+                if (startResult.exitCode != 0) {
+                    if (!project.isDisposed) {
+                        notify(
+                            project,
+                            "$actionTitle 执行失败",
+                            formatLog(logs.joinToString("\n\n"), startResult.exitCode),
+                            NotificationType.ERROR,
+                        )
+                    }
+                    return
+                }
+            }
+
+            val checkpointCommand = buildCheckpointCommand(filePaths, options)
+            val checkpointResult = runCommand(checkpointCommand, workingDirectory)
+            logs += checkpointResult.format(checkpointCommand)
             if (!project.isDisposed) {
-                val type = if (exitCode == 0) NotificationType.INFORMATION else NotificationType.ERROR
-                val title = if (exitCode == 0) "Mock AI 执行日志" else "Mock AI 执行失败"
-                notify(project, title, formatLog(output, exitCode), type)
+                val type = if (checkpointResult.exitCode == 0) NotificationType.INFORMATION else NotificationType.ERROR
+                val title = if (checkpointResult.exitCode == 0) "$actionTitle 执行日志" else "$actionTitle 执行失败"
+                notify(project, title, formatLog(logs.joinToString("\n\n"), checkpointResult.exitCode), type)
             }
         } catch (exception: Exception) {
             if (!project.isDisposed) {
                 val detail = exception.message ?: exception.javaClass.simpleName
-                notify(project, "Mock AI 执行失败", formatLog(detail, null), NotificationType.ERROR)
+                notify(project, "$actionTitle 执行失败", formatLog(detail, null), NotificationType.ERROR)
             }
         }
+    }
+
+    private fun buildCheckpointCommand(filePaths: List<String>, options: CommandOptions): List<String> = buildList {
+        add("git")
+        addAll(listOf("ai", "checkpoint", checkpointAgent))
+        addAll(filePaths)
+        options.tool?.let { addAll(listOf("--tool", it)) }
+        options.id?.let { addAll(listOf("--id", it)) }
+        options.model?.let { addAll(listOf("--model", it)) }
+    }
+
+    private fun runCommand(command: List<String>, workingDirectory: File?): CommandResult {
+        val process = ProcessBuilder(command)
+            .directory(workingDirectory)
+            .redirectErrorStream(true)
+            .start()
+
+        val output = process.inputStream.bufferedReader().use { it.readText() }
+        val exitCode = process.waitFor()
+        return CommandResult(exitCode, output)
     }
 
     private fun formatLog(output: String, exitCode: Int?): String {
@@ -120,11 +151,30 @@ class MockAIAction : DumbAwareAction() {
         )
 
         return candidates.firstOrNull { it.isNotEmpty() }
-            ?.distinctBy { path ->
-                val normalizedPath = path.replace('\\', '/')
-                if (SystemInfo.isWindows) normalizedPath.lowercase() else normalizedPath
-            }
+            ?.distinctBy(::pathKey)
             .orEmpty()
+    }
+
+    /** Expands a selected directory into its files so checkpoint receives one path per file. */
+    private fun expandDirectoryPaths(paths: List<String>): List<String> = paths
+        .flatMap { path ->
+            val file = File(path)
+            if (!file.isDirectory) {
+                listOf(path)
+            } else {
+                file.walkTopDown()
+                    .onEnter { directory -> directory.name != GIT_DIRECTORY_NAME }
+                    .filter { it.isFile }
+                    .map { it.path }
+                    .sorted()
+                    .toList()
+            }
+        }
+        .distinctBy(::pathKey)
+
+    private fun pathKey(path: String): String {
+        val normalizedPath = path.replace('\\', '/')
+        return if (SystemInfo.isWindows) normalizedPath.lowercase() else normalizedPath
     }
 
     private fun notify(project: Project, title: String, content: String, type: NotificationType) {
@@ -163,56 +213,58 @@ class MockAIAction : DumbAwareAction() {
         },
     )
 
-    private fun extractExecutable(resourcePath: String): Path {
-        extractedExecutable?.let { return it }
-
-        return synchronized(EXTRACTION_LOCK) {
-            extractedExecutable?.let { return@synchronized it }
-
-            val directory = Files.createTempDirectory("GitMockAI-")
-            val executable = directory.resolve("xai.exe")
-            javaClass.getResourceAsStream(resourcePath).use { input ->
-                requireNotNull(input) { "找不到插件资源：$resourcePath" }
-                Files.copy(input, executable, StandardCopyOption.REPLACE_EXISTING)
-            }
-            executable.toFile().setExecutable(true)
-            directory.toFile().deleteOnExit()
-            executable.toFile().deleteOnExit()
-            executable.also { extractedExecutable = it }
-        }
-    }
-
-    private enum class XaiPlatform(val resourcePath: String?) {
-        WINDOWS("/bin/win/xai.exe"),
-        MACOS(null),
-        LINUX(null),
-        OTHER(null);
-
-        companion object {
-            fun current(): XaiPlatform = when {
-                SystemInfo.isWindows -> WINDOWS
-                SystemInfo.isMac -> MACOS
-                SystemInfo.isLinux -> LINUX
-                else -> OTHER
-            }
-        }
-    }
-
     private data class CommandOptions(
-        val tool: String?,
-        val id: String?,
-        val model: String?,
+        val tool: String? = null,
+        val id: String? = null,
+        val model: String? = null,
     )
+
+    private data class CommandResult(
+        val exitCode: Int,
+        val output: String,
+    ) {
+        fun isBgReady(): Boolean {
+            if (exitCode != 0) return false
+
+            val normalizedOutput = output.lowercase()
+            return BAD_BG_STATUS_KEYWORDS.none { it in normalizedOutput }
+        }
+
+        fun format(command: List<String>): String {
+            val trimmedOutput = output.trim()
+            val content = if (trimmedOutput.isEmpty()) "无输出" else trimmedOutput
+            return "命令：${command.joinToString(" ") { it.displayArgument() }}\n退出码：$exitCode\n$content"
+        }
+
+        private fun String.displayArgument(): String =
+            if (isEmpty() || any(Char::isWhitespace) || contains('"')) {
+                "\"${replace("\"", "\\\"")}\""
+            } else {
+                this
+            }
+    }
 
     private companion object {
         const val NOTIFICATION_GROUP_ID = "GitMockAI Notifications"
         const val CHECKPOINT_ID_BYTES = 12
         const val MAX_LOG_LENGTH = 2_000
         const val HEX_DIGITS = "0123456789abcdef"
+        const val GIT_DIRECTORY_NAME = ".git"
+        val BAD_BG_STATUS_KEYWORDS = listOf(
+            "not running",
+            "not started",
+            "stopped",
+            "inactive",
+            "failed",
+            "error",
+            "未运行",
+            "未启动",
+            "已停止",
+            "停止",
+            "失败",
+            "错误",
+            "异常",
+        )
         val SECURE_RANDOM = SecureRandom()
-        val EXTRACTION_LOCK = Any()
-
-        @Volatile
-        var extractedExecutable: Path? = null
     }
 }
