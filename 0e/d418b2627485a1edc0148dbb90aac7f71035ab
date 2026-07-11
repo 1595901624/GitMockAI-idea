@@ -1,7 +1,7 @@
 ---
 {
   "schema_version": "authorship/3.0.0",
-  "git_ai_version": "1.0.0-2",
+  "git_ai_version": "1.0.2",
   "base_commit_sha": "0ed418b2627485a1edc0148dbb90aac7f71035ab",
   "prompts": {
     "fb14c2797126166c": {
@@ -11,10 +11,24 @@
         "model": "gpt-5.6-terra"
       },
       "human_author": "luhaoyu <haoyu3@163.com>",
+      "messages": [],
       "total_additions": 25,
       "total_deletions": 17,
       "accepted_lines": 0,
       "overriden_lines": 0
     }
-  }
+  },
+  "commit_stats": {
+    "git_diff_added_lines": 0,
+    "git_diff_deleted_lines": 0,
+    "ai_additions": 0,
+    "ai_accepted": 0,
+    "BYMC": 0,
+    "mixed_additions": 0,
+    "BYAC": 0,
+    "BYRC": 0
+  },
+  "ipa_account": "luhaoyu",
+  "commit_timestamp": 1783773908,
+  "requirement_id": ""
 }
