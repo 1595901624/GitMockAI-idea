@@ -1,0 +1,24 @@
+src/main/kotlin/com/hy/ide/cmcc/GitAiRuntimeManager.kt
+  s_7ea897604484e6::t_dcce1028d4cf1f 333-338
+  s_7ea897604484e6::t_ae1b0cd91a4d86 273-276
+  s_7ea897604484e6::t_21829e36053236 278,294-298,323-332,339-346
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.0-2",
+  "base_commit_sha": "f5b04f33ad95b2a555af83de99e82e698b36f505",
+  "prompts": {
+    "7ea897604484e6a6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f5174-bcbd-7c22-b658-cba10f19ed71",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "luhaoyu <haoyu3@163.com>",
+      "total_additions": 89,
+      "total_deletions": 59,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    }
+  }
+}
