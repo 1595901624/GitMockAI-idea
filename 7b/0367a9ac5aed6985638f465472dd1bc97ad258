@@ -1,0 +1,20 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.2",
+  "base_commit_sha": "7b0367a9ac5aed6985638f465472dd1bc97ad258",
+  "prompts": {},
+  "commit_stats": {
+    "git_diff_added_lines": 0,
+    "git_diff_deleted_lines": 0,
+    "ai_additions": 0,
+    "ai_accepted": 0,
+    "BYMC": 0,
+    "mixed_additions": 0,
+    "BYAC": 0,
+    "BYRC": 0
+  },
+  "ipa_account": "luhaoyu",
+  "commit_timestamp": 1783916787,
+  "requirement_id": ""
+}
